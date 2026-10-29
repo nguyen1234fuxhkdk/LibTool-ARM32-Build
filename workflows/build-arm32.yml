@@ -1,1 +1,32 @@
 
+name: ARM32 NDK Toolchain Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/build-arm32.yml'
+
+jobs:
+  verify-ndk:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NDK
+        run: sdkmanager "platform-tools" "platforms;android-21" "ndk;26.3.11579264"
+
+      - name: Test ARM32 compiler
+        shell: bash
+        run: |
+          set -euxo pipefail
+          NDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}/ndk/26.3.11579264"
+          BIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          "$BIN/armv7a-linux-androideabi21-clang" --version
+          "$BIN/armv7a-linux-androideabi21-clang++" --version
+          echo "ARM32 TOOLCHAIN OK"
+          
